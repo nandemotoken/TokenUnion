@@ -1565,6 +1565,7 @@ contract TokenUnionFlag_v1 is ERC721 {
 uint256 flagNumber;
 
 address[10]  private realFlagOwner;
+address[10]  private realFlagOwnerCandidate;
 uint256[10] private secretNumbers;
 
 modifier RealFlagOwner {
@@ -1578,26 +1579,32 @@ modifier RealFlagOwner {
 
 function mintFlag() RealFlagOwner public {
     _mint(_msgSender() , flagNumber);
-    _setTokenURI(flagNumber , "https://raw.githubusercontent.com/nandemotoken/TokenUnion/master/TokenUnionFlag.png");
+    _setTokenURI(flagNumber , string(abi.encodePacked("https://tokenunion.jp/" , flagNumber , ".json")));
 	flagNumber++;
-}
-
-
-function setFlagURI(uint256 _id , string memory _uri ) public {
-     require (msg.sender == 0xE35B827177398D8d2FBA304d9cF53bc8fC1573B7);
-     _setTokenURI(_id , _uri);
 }
 
 
 //Caution! This is Not Secure. We need hidden transaction.
 function setSercretNumber(uint256 _realFlagId , uint256 _secretNumber ) public {
-    require (msg.sender == 0xE35B827177398D8d2FBA304d9cF53bc8fC1573B7);
+    require(msg.sender == 0xE35B827177398D8d2FBA304d9cF53bc8fC1573B7);
     secretNumbers[_realFlagId] = _secretNumber;
 }
 
-function setRealFlagOwner(uint256 _realFlagId , uint256 _secretNumber ) public {
+function setRealFlagOwner(uint256 _realFlagId ) RealFlagOwner public {
+    realFlagOwner[_realFlagId] = realFlagOwnerCandidate[_realFlagId];
+}
+
+function getRealFlagOwner(uint256 _realFlagId) public view returns (address) {
+    return  realFlagOwner[_realFlagId]; 
+}
+
+function setRealFlagOwnerCandidate(uint256 _realFlagId , uint256 _secretNumber ) public {
     require (secretNumbers[_realFlagId] == _secretNumber);
-    realFlagOwner[_realFlagId] = msg.sender;
+    realFlagOwnerCandidate[_realFlagId] = msg.sender;
+}
+
+function getRealFlagOwnerCandidate(uint256 _realFlagId) public view returns (address) {
+    return  realFlagOwnerCandidate[_realFlagId]; 
 }
 
 constructor() ERC721 ("Token Union Flag" , "FLAG") public {
